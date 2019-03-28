@@ -1,0 +1,15 @@
+{
+    "pluginName": "AppUninstaller",
+    "description": "软件卸载插件",
+    "main": "index.html",
+    "version": "0.0.1",
+    "author": "云之轩",
+    "homepage":"https://github.com/fofolee/uTools-AppUninstaller",
+    "logo": "logo.png",
+    "platform": ["win32"],
+    "preload":"preload.js",
+    "features": [{
+        "code": "uninstall",
+        "cmds": ["uninstall", "卸载"]
+    }]
+}
