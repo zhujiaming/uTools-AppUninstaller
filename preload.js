@@ -32,7 +32,7 @@ getico = apps =>{
 }
 
 applist = (callback) => {
-    let filterValues = "Select-Object DisplayName,DisplayIcon,UninstallString,DisplayVersion,InstallDate,Publisher"
+    let filterValues = "Select-Object DisplayName,DisplayIcon,UninstallString,DisplayVersion,InstallDate,Publisher,InstallLocation"
     let localMatcine = `Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | ${filterValues}`;
     let currentUser = `Get-ItemProperty HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | ${filterValues}`;
     let Wow6432Node = `Get-ItemProperty HKLM:\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | ${filterValues}`;
@@ -75,6 +75,19 @@ appremove = (command, callback) => {
         }
     })
 }
+
+openfolder = (path, callback) => {
+    if (path) {
+        exec(`explorer.exe ${path}`, { encoding: 'buffer' }, (err, stdout, stderr) => {
+            if (err) {
+                callback(iconv.decode(stderr, 'cp936'));
+            }
+        })
+    } else {
+        callback('注册表中无该软件的安装目录！')
+    }
+}
+
 
 
 applist(apps => {
