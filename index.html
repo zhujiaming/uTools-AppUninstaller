@@ -7,65 +7,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="assets/style.css">
     <script src="assets/jquery-3.3.1.min.js"></script>
-    <title>AppUninstaller</title>
+    <title>软件卸载</title>
 </head>
 
 <body>
     <div id="applist"></div>
     <div id="infopannel"></div>
-    <script>
-        uninstall = (command) => {
-            window.appremove(command, err => {
-                if (err) {
-                    $("#infopannel").css({ "background": "#EF5350" });
-                    $("#infopannel").html(err).fadeIn(300).delay(3000).fadeOut(300);
-                } else {
-                    $("[command='" + command + "']").fadeOut(300).remove()
-                    let appnum = $(".appinfo").length
-                    utools.setExpendHeight(appnum > 10 ? 500 : 50 * appnum);
-                    window.applist((app) => {
-                        window.apps = app
-                    });
-                }
-            });
-        }
-
-        show = (apps, text) => {
-            var appinfo = '';
-            for (var t of apps) {
-                if (t.UninstallString && t.DisplayName.toUpperCase().search(text.toUpperCase()) != -1) {
-                    appinfo += "<div class='appinfo' command='" + t.UninstallString + "'>";
-                    appinfo += '<img src="file:///' + t.Icon + '">';
-                    appinfo += '<div class="date">' + t.InstallDate.replace(/(\d{4})(\d{2})(\d{2})/,'$1年$2月$3日') + '</div>';
-                    appinfo += '<div class="description">' + t.DisplayName + '</div>';
-                    appinfo += '<div class="version">版本号: ' + t.DisplayVersion + '&nbsp;&nbsp;&nbsp;发布者: '+ t.Publisher + '</div></div>';
-                    }
-                }
-            $("#applist").html(appinfo);
-            let appnum = $(".appinfo").length
-            utools.setExpendHeight(appnum > 10 ? 500 : 50 * appnum);
-        }
-        utools.onPluginEnter(({ code, type, payload }) => {
-            utools.setExpendHeight(0);
-            window.applist((app) => {
-                window.apps = app;
-                show(window.apps, '');
-                utools.setSubInput(({ text }) => {
-                        show(window.apps, text)
-                    }, '输入程序名，回车卸载，或点击卸载');
-                });
-            });
-            $("#applist").on('mousedown', '.appinfo', function (e) {
-                if (1 == e.which) {
-                    uninstall($(this).attr('command'));
-                }
-             });
-            $(document).keydown(e => {
-                if (e.keyCode === 13) {
-                    uninstall($(".appinfo").attr('command'));
-                }
-            });
-    </script>
+    <script src="assets/index.js"></script>
 </body>
 
 </html>
