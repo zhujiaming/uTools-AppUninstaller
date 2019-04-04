@@ -2,10 +2,8 @@ const fs = require('fs');
 const path = require("path");
 const iconExtractor = require('icon-extractor');
 const os = require('os')
-const PowerShell = require("powershell");
-const { exec } = require('child_process')
+const child = require('child_process')
 const iconv = require('iconv-lite')
-
 
 getico = apps =>{
     iconExtractor.emitter.on('icon', function (data) {
@@ -31,19 +29,32 @@ getico = apps =>{
     }
 }
 
+powershell = (cmd, callback) => {
+    const ps = child.spawn('powershell', ['-Command', cmd], { encoding: 'buffer' })
+    let chunks = [];
+    let err_chunks = [];
+    ps.stdout.on('data', chunk => {
+        chunks.push(iconv.decode(chunk, 'cp936'))
+    })
+    ps.stderr.on('data', err_chunk => {
+        err_chunks.push(iconv.decode(err_chunk, 'cp936'))
+    })
+    ps.on('close', code => {
+        let stdout = chunks.join("");
+        let stderr = err_chunks.join("");
+        callback(stdout, stderr)
+    })
+}
+
 applist = (callback) => {
     let filterValues = "Select-Object DisplayName,DisplayIcon,UninstallString,DisplayVersion,InstallDate,Publisher,InstallLocation"
     let localMatcine = `Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | ${filterValues}`;
     let currentUser = `Get-ItemProperty HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | ${filterValues}`;
     let Wow6432Node = `Get-ItemProperty HKLM:\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | ${filterValues}`;
-    if (process.arch == 'x64') {
-        var ps = new PowerShell(`chcp 65001;${localMatcine};${currentUser};${Wow6432Node}`);      
-    } else {
-        var ps = new PowerShell(`chcp 65001;${localMatcine};${currentUser}`);              
-    }
-    ps.on("output", data => {
+    let x64 = process.arch == 'x64' ? `;${Wow6432Node}` : '';
+    powershell(`${localMatcine};${currentUser}${x64}`, (stdout, stderr) => {
         let applist = [];
-        let apps = data.trim().replace(/\r\n[ ]{10,}/g,"").split('\r\n\r\n');
+        let apps = stdout.trim().replace(/\r\n[ ]{10,}/g,"").split('\r\n\r\n');
         for (var app of apps) {
             dict = {}
             let lines = app.split('\r\n')
@@ -61,7 +72,6 @@ applist = (callback) => {
                 applist.push(dict);
             }
         }
-        applist.shift();
         getico(applist);
         callback(applist);
     });
@@ -69,7 +79,7 @@ applist = (callback) => {
 
 appremove = (command, callback) => {
     command = command.replace(/(^[A-z]:\\[\S ]+\\\S+)($| )/, '"$1"$2')
-    exec(command, { encoding : 'buffer' }, (err, stdout, stderr) => {
+    child.exec(command, { encoding : 'buffer' }, (err, stdout, stderr) => {
         if (err) {
             callback(iconv.decode(stderr, 'cp936'));
         }
@@ -78,7 +88,7 @@ appremove = (command, callback) => {
 
 openfolder = (path, callback) => {
     if (path) {
-        exec(`explorer.exe ${path}`, { encoding: 'buffer' }, (err, stdout, stderr) => {
+        child.exec(`explorer.exe ${path}`, { encoding: 'buffer' }, (err, stdout, stderr) => {
             if (err) {
                 callback(iconv.decode(stderr, 'cp936'));
             }
@@ -87,11 +97,3 @@ openfolder = (path, callback) => {
         callback('注册表中无该软件的安装目录！')
     }
 }
-
-
-
-applist(apps => {
-    for (var app of apps) {
-        console.log(app.UninstallString);
-    }
-})
