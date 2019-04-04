@@ -2,7 +2,7 @@
     "pluginName": "卸载软件",
     "description": "列出注册表中所有的安装的软件，左键进行卸载，右键打开软件所在目录",
     "main": "index.html",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "author": "云之轩",
     "homepage":"https://github.com/fofolee/uTools-AppUninstaller",
     "logo": "logo.png",
@@ -10,6 +10,7 @@
     "preload":"preload.js",
     "features": [{
         "code": "uninstall",
-        "cmds": ["uninstall", "uni", "卸载"]
+        "explain": "列出所有的安装的软件，左键进行软件卸载，右键打开软件所在目录",
+        "cmds": ["uninstall", "remove", "卸载"]
     }]
 }
