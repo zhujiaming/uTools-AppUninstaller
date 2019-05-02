@@ -30,7 +30,7 @@ getico = apps =>{
 }
 
 powershell = (cmd, callback) => {
-    const ps = child.spawn('powershell', ['-Command', cmd], { encoding: 'buffer' })
+    const ps = child.spawn('powershell', ['-NoProfile', '-Command', cmd], { encoding: 'buffer' })
     let chunks = [];
     let err_chunks = [];
     ps.stdout.on('data', chunk => {

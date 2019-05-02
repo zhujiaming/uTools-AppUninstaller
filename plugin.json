@@ -7,6 +7,7 @@
     "homepage":"https://github.com/fofolee/uTools-AppUninstaller",
     "logo": "logo.png",
     "platform": ["win32"],
+    "unpack":"{IconExtractor.exe,Newtonsoft.Json.dll}",
     "preload":"preload.js",
     "features": [{
         "code": "uninstall",
